@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Label with Three.js from Node Modules</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+
+     
+  </style>
+</head>
+<body>
+  
+
+    
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "/node_modules/three/build/three.module.min.js",
+                "three/addons/": "/node_modules/three/examples/jsm/"
+            }
+        }
+    </script>
+
+<script type="module">
+  // Import modules from node_modules
+import * as THREE from 'three';
+
+//import { DragControls } from 'three/addons/controls/DragControls.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  
+  
+  // Basic setup
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // Create a canvas texture for the label
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.width = 256;
+  canvas.height = 128;
+  
+  // Draw text on the canvas
+  context.fillStyle = 'white';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = 'black';
+  context.font = '50px Arial';
+  context.fillText('Hello, 3D World!', 10, 60);
+  
+  const texture = new THREE.CanvasTexture(canvas);
+
+  // Create a plane geometry and apply the texture
+  const geometry = new THREE.PlaneGeometry(2, 1);
+  const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+  const label = new THREE.Mesh(geometry, material);
+  
+  scene.add(label);
+
+  // Position the label and camera
+  label.position.set(0, 1, 0);
+  camera.position.set(0, 2, 5);
+
+  // Store initial rotation
+  const initialRotationY = label.rotation.y;
+
+  // Add OrbitControls
+  const controls = new OrbitControls(camera, renderer.domElement);
+
+  // Function to calculate the angle and rotate the label if necessary
+  function updateLabelRotation() {
+    label.rotation.y = initialRotationY; 
+    // Vector v1: Normal of the plane (pointing forward along the z-axis)
+    const v1 = new THREE.Vector3(0, 0, 1).applyQuaternion(label.quaternion);
+
+    // Vector v2: From the plane to the camera
+    const v2 = new THREE.Vector3().subVectors(camera.position, label.position).normalize();
+
+    // Calculate the dot product of v1 and v2
+    const dotProduct = v1.dot(v2);
+    const e0 = 0.001;
+    // If the cosine of the angle is negative (dotProduct < 0), rotate the plane by 180 degrees
+
+     
+    if (dotProduct < -e0) {
+      label.rotation.y = initialRotationY + Math.PI; // Rotate the label 180 degrees
+    } 
+}   
+
+  // Animate and ensure the label faces the camera
+  function animate() {
+    controls.update();
+    requestAnimationFrame(animate);
+
+    // Update label rotation based on angle with camera
+    updateLabelRotation();
+
+    // Update controls and render the scene
+    
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  // Resize handler
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+</script>
+</body>
+</html>

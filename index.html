@@ -18,12 +18,14 @@
 
     <script type="importmap">
         {
-            "imports": {
-                "three": "/node_modules/three/build/three.module.min.js",
-                "three/addons/": "/node_modules/three/examples/jsm/"
-            }
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.177.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.177.0/examples/jsm/",
+            "assets/":"../../assets/",
+            "libs/":"../../libs/"            
+          }
         }
-    </script>
+      </script>
 
 <script type="module">
   // Import modules from node_modules
@@ -116,3 +118,4 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 </script>
 </body>
 </html>
+
